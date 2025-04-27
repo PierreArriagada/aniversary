@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Aniversario</title>
+    <style>
+        /* Estilos Generales y Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e5e7eb; /* gray-200 */
+            overflow-x: hidden;
+            color: #374151; /* gray-700 */
+        }
+
+        /* Encabezado */
+        .header {
+            height: 100vh; /* Ocupa toda la altura de la ventana inicial */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem; /* Ajustado para mejor visibilidad */
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #1f2937; /* gray-800 */
+        }
+
+      #controls-container {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+      }
+
+      #toggle-controls {
+        background-color: #e5e7eb; /* gray-200 */
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 5px;
+        backdrop-filter: blur(5px);
+      }
+
+      #controls {
+        background-color: #e5e7eb; /* gray-200 */
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 300px;
+        backdrop-filter: blur(5px);
+        display: block;
+      }
+
+      .control-group {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .control-group label {
+        width: 100px;
+        font-size: 14px;
+        margin-right: 10px;
+      }
+
+      .control-group input[type="range"] {
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+
+      .control-group span {
+        width: 30px;
+        text-align: right;
+        font-size: 14px;
+      }
+
+      .control-group select {
+        flex-grow: 1;
+        padding: 5px;
+        border-radius: 4px;
+        background-color: #e5e7eb; /* gray-200 */
+        color: white;
+        border: none;
+      }
+
+      .heart-outline {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 360px;
+        height: 320px;
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.3);
+        stroke-width: 2;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      #intro-controls {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #e5e7eb; /* gray-200 */
+      }
+
+      #intro-controls h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+      }
+
+      #intro-controls ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      #intro-controls li {
+        margin-bottom: 5px;
+        font-size: 1em;
+      }
+
+      #toggle-fullscreen {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #e5e7eb; /* gray-200 */
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 100;
+        backdrop-filter: blur(5px);
+      }
+
+      @media (max-width: 600px) {
+        #controls-container {
+          top: 10px;
+          left: 10px;
+          right: 10px;
+          max-width: none;
+        }
+
+        .control-group label {
+          width: 80px;
+          font-size: 12px;
+        }
+      }
+        /* Animación de Escritura (CSS Puro) */
+        .typing-text {
+            color: #dc2626; /* red-600 */
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0 auto;
+            border-right: .15em solid #dc2626; /* Cursor */
+            animation:
+                typing 3.0s steps(30, end),
+                blink-caret .75s step-end infinite;
+            font-weight: 600; /* Hacerlo negrita también */
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #dc2626; }
+        }
+
+        /* Contenedor Principal del Contenido */
+        .content {
+            padding: 40px 20px; /* Más padding */
+            max-width: 1200px; /* Ancho máximo para pantallas grandes */
+            margin: 40px auto; /* Margen superior/inferior y centrado */
+        }
+
+        /* --- Sección Modificada: Imagen Izquierda, Texto Derecha --- */
+        .image-text-section {
+            display: flex;
+            flex-direction: column; /* Por defecto para móviles */
+            align-items: center;
+            gap: 30px; /* Espacio entre imagen y contenedor de texto */
+            margin: 60px 0;
+        }
+
+        .main-image-container {
+             width: 100%; /* Ocupa todo el ancho en móvil */
+             max-width: 350px; /* Límite de tamaño para la imagen */
+             opacity: 0;
+             transform: translateX(-30px); /* Animación desde la izquierda */
+             transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .main-image {
+            display: block; /* Asegura que no haya espacio extra debajo */
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .text-boxes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Espacio entre cuadros de texto */
+            width: 100%; /* Ocupa todo el ancho en móvil */
+            max-width: 400px; /* Límite de tamaño para los textos */
+            margin-top: 20px; /* Espacio arriba en móvil */
+        }
+
+        .text-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            font-size: 1.1rem;
+            color: #4b5563; /* gray-600 */
+            text-align: center;
+            opacity: 0;
+            transform: translateX(30px); /* Animación desde la derecha */
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        /* Retrasos para aparición secuencial */
+        .text-box:nth-child(1) { transition-delay: 0.2s; }
+        .text-box:nth-child(2) { transition-delay: 0.4s; }
+        .text-box:nth-child(3) { transition-delay: 0.6s; }
+        .text-box:nth-child(4) { transition-delay: 0.8s; }
+
+        /* --- Fin Sección Modificada --- */
+
+        /* Sección del Mensaje Largo */
+        .message-section {
+            padding: 60px 0; /* Más padding vertical */
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .message-heading {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: #1f2937; /* gray-800 */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .message-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            text-align: justify; /* Justificado para mejor lectura */
+            max-width: 700px; /* Ancho máximo del texto */
+            margin: 0 auto; /* Centrado */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease 0.2s, transform 1s ease 0.2s; /* Ligero delay */
+        }
+         .message-text p {
+             margin-bottom: 1.5em; /* Espacio entre párrafos */
+         }
+
+        /* Sección Final (Imagen Izq, Texto Der en Desktop) */
+        .final-section {
+            display: flex;
+            flex-direction: column; /* Móvil primero */
+            padding: 40px 0; /* Padding vertical */
+            margin-top: 60px;
+            gap: 30px; /* Espacio entre imagen y texto */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .final-image-container {
+            width: 100%; /* Ancho completo en móvil */
+            max-width: 400px; /* Límite */
+            margin: 0 auto; /* Centrado en móvil */
+        }
+
+        .final-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .final-text {
+            font-size: 1rem;
+            line-height: 1.8;
+            text-align: left;
+            max-width: 600px; /* Límite */
+            margin: 0 auto; /* Centrado en móvil */
+        }
+        .final-text p {
+            margin-bottom: 1em;
+        }
+
+        /* Clase para hacer visibles los elementos con JS */
+        .visible {
+            opacity: 1;
+            transform: translateY(0) translateX(0); /* Resetear transformaciones */
+        }
+
+        /* --- Media Queries para Desktop --- */
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 3.5rem; /* Más grande en desktop */
+            }
+
+            .image-text-section {
+                flex-direction: row; /* Imagen y texto en fila */
+                justify-content: center; /* Centrar el conjunto */
+                gap: 50px; /* Más espacio */
+                align-items: flex-start; /* Alinear arriba */
+            }
+            .main-image-container {
+                 width: 45%; /* Ancho para la imagen */
+                 max-width: 450px;
+            }
+            .text-boxes-container {
+                width: 40%; /* Ancho para los textos */
+                max-width: 400px;
+                margin-top: 0; /* Resetear margen */
+            }
+
+             .final-section {
+                 flex-direction: row; /* Imagen y texto en fila */
+                 align-items: center; /* Centrar verticalmente */
+                 gap: 50px;
+             }
+             .final-image-container {
+                 width: 40%; /* Ancho imagen */
+                 max-width: 500px;
+                 margin: 0; /* Resetear margen */
+             }
+             .final-text {
+                 width: 55%; /* Ancho texto */
+                 margin: 0; /* Resetear margen */
+                 max-width: none;
+             }
+        }
+
+         @media (min-width: 1024px) {
+              .header h1 {
+                 font-size: 4rem;
+             }
+              .message-heading {
+                 font-size: 2.5rem;
+              }
+         }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hola amor</h1>
+        <h1 class="typing-text">Feliz Aniversario</h1>
+    </div>
+
+    <div id="controls-container">
+        <button id="toggle-controls">Controls</button>
+        <button id="toggle-fullscreen">Full Screen</button>
+        <div id="controls">
+          <div class="control-group">
+            <label for="colorScheme">Colors:</label>
+            <select id="colorScheme">
+              <option value="rainbow">Rainbow</option>
+              <option value="red">Red</option>
+              <option value="green">Green</option>
+              <option value="blue">Blue</option>
+              <option value="monochrome">Monochrome</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="particleSize">Size:</label>
+            <input type="range" id="particleSize" min="1" max="20" value="10">
+            <span id="particleSizeValue">10</span>
+          </div>
+          <div class="control-group">
+            <label for="particleCount">Particles:</label>
+            <input type="range" id="particleCount" min="10" max="100" value="32">
+            <span id="particleCountValue">32</span>
+          </div>
+          <div class="control-group">
+            <label for="speed">Speed:</label>
+            <input type="range" id="speed" min="0.1" max="2" step="0.1" value="1">
+            <span id="speedValue">1</span>
+          </div>
+          <div class="control-group">
+            <label for="mouseInfluence">Mouse Follow:</label>
+            <input type="range" id="mouseInfluence" min="0" max="100" value="50">
+            <span id="mouseInfluenceValue">50</span>
+          </div>
+        </div>
+      </div>
+      
+      <canvas id="c"></canvas>
+  
+
+    <div class="content">
+
+        <div class="image-text-section">
+            <div class="main-image-container">
+                <img src="/img/ChatGPT Image 26 abr 2025, 06_21_25 p.m..png" alt="Nuestro primer recuerdo importante" class="main-image">
+            </div>
+
+            <div class="text-boxes-container">
+                <div class="text-box">Te amo mucho</div>
+                <div class="text-box">Me haces feliz</div>
+                <div class="text-box">Eres mi luz</div>
+                <div class="text-box">Mi futuro</div>
+            </div>
+        </div>
+
+        
+
+        <div class="message-section">
+            <h2 class="message-heading">Quiero decirte...</h2>
+            <div class="message-text">
+                <p>Mi amor,
+
+                    Hoy celebramos un año más juntos, y no quería dejar pasar la oportunidad de decirte cuánto te amo. Gracias por ser mi compañera en cada paso, por estar en los momentos felices y también en los difíciles.
+                    
+                    Contigo he aprendido que el amor verdadero se demuestra sobre todo en esos días complicados, cuando no todo es perfecto, pero seguimos eligiéndonos igual. Y eso para mí lo significa todo.
+                    
+                    No tengo palabras suficientes para agradecerte por tu amor, tu paciencia y tu apoyo incondicional. Eres mi fuerza, mi paz y mi alegría diaria.
+                    
+                    Te amo con todo mi corazón. Feliz aniversario, amor de mi v</p>
+                 </div>
+        </div>
+
+        <div class="final-section">
+             <div class="final-image-container">
+                <img src="/img/love-1195987_640.png" alt="Nosotros juntos, mirando al futuro" class="final-image">
+            </div>
+             <div class="final-text">
+                 <p>Cada momento contigo ha sido un regalo. Desde aquella primera sonrisa hasta hoy, has llenado mi vida de colores que nunca imaginé que existían. En cada abrazo, en cada beso, en cada mirada compartida, he encontrado el verdadero significado del amor.</p>
+                <p>Juntos hemos creado recuerdos que atesoraré para siempre. Hemos superado obstáculos que parecían imposibles y hemos celebrado victorias que han fortalecido nuestro vínculo.</p>
+                <p>Por muchos más aniversarios juntos, por muchas más aventuras y por un futuro lleno de amor. Te amo infinitamente.</p>
+                <p style="margin-top: 1em; font-style: italic;"></p> </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuración del Intersection Observer
+            const observerOptions = {
+                root: null, // Observa en relación al viewport
+                rootMargin: '0px',
+                threshold: 0.1 // El elemento debe ser visible al 10% para activar
+            };
+
+            // Función callback que se ejecuta cuando un elemento observado entra o sale
+            const observerCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    // Si el elemento está intersectando (visible)
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Opcional: dejar de observar una vez que es visible para no re-animar
+                        // observer.unobserve(entry.target);
+                    }
+                    // Podrías añadir lógica para quitar 'visible' si sale de la vista
+                    // else { entry.target.classList.remove('visible'); }
+                });
+            };
+
+            // Crear una instancia del observer
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+            // Elementos a observar para la animación de aparición
+            const elementsToObserve = [
+                document.querySelector('.main-image-container'), // Observa el contenedor de la imagen principal
+                ...document.querySelectorAll('.text-box'),       // Observa todos los cuadros de texto
+                document.querySelector('.message-heading'),
+                document.querySelector('.message-text'),
+                document.querySelector('.final-section')
+            ];
+
+            // Poner a observar cada elemento encontrado
+            elementsToObserve.forEach(el => {
+                if (el) { // Asegurarse de que el elemento existe antes de observarlo
+                    observer.observe(el);
+                }
+            });
+        });
+
+
+        // Configuration
+      const config = {
+          particleCount: 32,
+          speed: 1,
+          colorScheme: 'rainbow',
+          mouseInfluence: 50,
+          showHeartOutline: true,
+          particleSize: 10
+      };
+
+      // Canvas setup
+      const canvas = document.getElementById('c');
+      const ctx = canvas.getContext('2d');
+      let canvasWidth = canvas.width = window.innerWidth;
+      let canvasHeight = canvas.height = window.innerHeight;
+
+    // Animation state
+    let trails = [];
+    let heartPath = [];
+    let mouseX = canvasWidth / 2;
+    let mouseY = canvasHeight / 2;
+    let mouseActive = false;
+    let animationRunning = false;
+    // Initialize heart path points (fixed formula)
+    function initHeartPath() {
+        heartPath = [];
+        const PI2 = 6.28318; // 2*PI approximation
+        const steps = Math.max(32, config.particleCount);
+        
+        for (let i = 0; i < steps; i++) {
+            const t = (i / steps) * PI2;
+            heartPath.push([
+                canvasWidth/2 + 180 * Math.pow(Math.sin(t), 3),
+                canvasHeight/2 + 10 * (-(15 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)))
+            ]);
+        }
+    }
+
+      // Initialize particles with proper bounds checking
+      function initParticles() {
+          trails = [];
+          if (heartPath.length === 0) initHeartPath();
+
+          for (let i = 0; i < config.particleCount; i++) {
+              const particles = [];
+              const x = Math.random() * canvasWidth;
+              const y = Math.random() * canvasHeight;
+
+              for (let k = 0; k < config.particleCount; k++) {
+                  // Color generation
+                  let hue, saturation = Math.random() * 40 + 60;
+                  let brightness = Math.random() * 60 + 20;
+                  
+                  switch(config.colorScheme) {
+                      case 'red': hue = Math.random() * 20 + 350; break;
+                      case 'blue': hue = Math.random() * 20 + 200; break;
+                      case 'green': hue = Math.random() * 20 + 100; break;
+                      case 'monochrome': hue = 0; saturation = 0; break;
+                      default: hue = i/config.particleCount * 360; // rainbow
+                  }
+
+                  particles.push({
+                      x, y,
+                      velX: 0, velY: 0,
+                      radius: ((1 - k/config.particleCount) + 1) * config.particleSize/2,
+                      speed: Math.random() + 1,
+                      targetIndex: Math.floor(Math.random() * heartPath.length),
+                      direction: i % 2 * 2 - 1,
+                      friction: Math.random() * 0.2 + 0.7,
+                      color: `hsla(${hue},${saturation}%,${brightness}%,0.1)`
+                  });
+              }
+              trails.push(particles);
+          }
+      }
+
+      // Render a single particle
+      function renderParticle(particle) {
+          ctx.fillStyle = particle.color;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+          ctx.fill();
+      }
+
+      // Main animation loop with robust error handling
+      function animationLoop() {
+          if (!animationRunning) return; // Stop the animation if not running
+
+          try {
+              // Clear with trail effect
+              ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+              ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+              trails.forEach(trail => {
+                  if (!trail || !trail.length) return;
+                  
+                  const leader = trail[0];
+                  const target = heartPath[leader.targetIndex % heartPath.length];
+                  if (!target) return;
+
+                  // Mouse influence
+                  if (mouseActive && config.mouseInfluence > 0) {
+                      const dx = mouseX - leader.x;
+                      const dy = mouseY - leader.y;
+                      const dist = Math.sqrt(dx*dx + dy*dy);
+                      
+                      if (dist < 300) {
+                          const force = (1 - dist/300) * (config.mouseInfluence/20);
+                          leader.velX += dx/dist * force;
+                          leader.velY += dy/dist * force;
+                      }
+                  }
+
+                  // Move toward target
+                  const dx = leader.x - target[0];
+                  const dy = leader.y - target[1];
+                  const dist = Math.sqrt(dx*dx + dy*dy);
+
+                  if (dist < 10) {
+                      if (Math.random() > 0.95) {
+                          leader.targetIndex = Math.floor(Math.random() * heartPath.length);
+                      } else {
+                          if (Math.random() > 0.99) leader.direction *= -1;
+                          leader.targetIndex += leader.direction;
+                          leader.targetIndex = (leader.targetIndex + heartPath.length) % heartPath.length;
+                      }
+                  }
+
+                  // Update physics
+                  leader.velX += -dx/dist * leader.speed * config.speed;
+                  leader.velY += -dy/dist * leader.speed * config.speed;
+                  leader.x += leader.velX;
+                  leader.y += leader.velY;
+                  leader.velX *= leader.friction;
+                  leader.velY *= leader.friction;
+
+                  // Render trail
+                  renderParticle(leader);
+                  for (let k = 1; k < trail.length; k++) {
+                      trail[k].x -= (trail[k].x - trail[k-1].x) * 0.7;
+                      trail[k].y -= (trail[k].y - trail[k-1].y) * 0.7;
+                      renderParticle(trail[k]);
+                  }
+              });
+          } catch (error) {
+              console.error("Animation error:", error);
+          }
+
+          requestAnimationFrame(animationLoop);
+      }
+
+      // Control handlers
+      function setupControls() {
+          const controls = document.getElementById('controls');
+          let controlsVisible = true;
+
+          document.getElementById('toggle-controls').addEventListener('click', () => {
+              controlsVisible = !controlsVisible;
+              controls.style.display = controlsVisible ? 'block' : 'none';
+          });
+
+          document.getElementById('toggle-fullscreen').addEventListener('click', () => {
+              if (!document.fullscreenElement) {
+                  document.documentElement.requestFullscreen();
+              } else {
+                  if (document.exitFullscreen) {
+                      document.exitFullscreen();
+                  }
+              }
+          });
+
+          const updateParticles = () => {
+              config.particleCount = Math.min(100, Math.max(10, 
+                  parseInt(document.getElementById('particleCount').value)));
+              document.getElementById('particleCountValue').textContent = config.particleCount;
+              initHeartPath();
+              initParticles();
+          };
+
+          document.getElementById('particleCount').addEventListener('input', updateParticles);
+          document.getElementById('speed').addEventListener('input', (e) => {
+              config.speed = parseFloat(e.target.value);
+              document.getElementById('speedValue').textContent = config.speed;
+          });
+          document.getElementById('colorScheme').addEventListener('change', (e) => {
+              config.colorScheme = e.target.value;
+              initParticles();
+          });
+          document.getElementById('mouseInfluence').addEventListener('input', (e) => {
+              config.mouseInfluence = parseInt(e.target.value);
+              document.getElementById('mouseInfluenceValue').textContent = config.mouseInfluence;
+          });
+          document.getElementById('particleSize').addEventListener('input', (e) => {
+              config.particleSize = parseInt(e.target.value);
+              document.getElementById('particleSizeValue').textContent = config.particleSize;
+              initParticles();
+          });
+
+          // Mouse tracking
+          document.addEventListener('mousemove', (e) => {
+              mouseX = e.clientX;
+              mouseY = e.clientY;
+              mouseActive = true;
+          });
+          document.addEventListener('mouseleave', () => mouseActive = false);
+
+          // Window resize
+          window.addEventListener('resize', () => {
+              canvasWidth = canvas.width = window.innerWidth;
+              canvasHeight = canvas.height = window.innerHeight;
+              initHeartPath();
+          });
+      }
+
+      // Initialize everything
+      function init() {
+          const controls = document.getElementById('controls');
+          const canvas = document.getElementById('c');
+
+          controls.style.display = 'block';
+          canvas.style.display = 'block';
+          animationRunning = true;
+          setupControls();
+          animationLoop(); // Start the animation loop
+
+          // Initialize everything
+          initHeartPath();
+          initParticles();
+      }
+
+      // Start the animation
+      init();
+    </script>
+</body>
+</html>
